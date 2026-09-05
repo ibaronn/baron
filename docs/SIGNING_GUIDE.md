@@ -8,6 +8,15 @@
 3. بعد نجاح الخطوات (npm ci → cap add ios → cap sync ios → xcodebuild بلا توقيع → التغليف) يظهر Artifact باسم `App-unsigned.ipa` في أعلى صفحة الـ Action.
 4. نزّله.
 
+> **مصيدة السحب المزدوج**: GitHub يغرّف أي Artifact في `App-unsigned.ipa.zip` تلقائياً.
+> بعد التنزيل: «انقر بزر الفأرة الأيمن → Extract» **مرة واحدة** على `App-unsigned.ipa.zip`
+> ثم استجلب منه ملف `App-unsigned.ipa` النهائي (هو هو الحقيقي).
+> إن استوردت القطعة الخارجية `App-unsigned.ipa.zip` نفسها إلى أداة التوقيع (حتى بعد تغيير امتدادها إلى `.ipa`)،
+> فقد ترفضها رسالة **"Payload not found"** لأن جذور حشوتها `App-unsigned.ipa/...` لا `Payload/...`.
+>
+> للتأكد البصري: غيّر امتداد الـ `App-unsigned.ipa` النهائي مؤقتاً إلى `.zip` وافتحه — يجب أن ترى مجلداً باسم `Payload`.
+> (عندك أداة توقيع مثل eSign: الملف الصحيح هو الذي داخله `Payload/App.app` وليس أي امتداد مغلّف.)
+
 ## 2) ما بداخله
 حزمة `ipa` = أرشيف يحوي `Payload/App.app` مبني بـ `CODE_SIGNING_ALLOWED=NO`. غير موقَّع — لهذا لا يُثبَّت مباشرة.
 
