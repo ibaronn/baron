@@ -42,7 +42,11 @@ jobs:
           APP_PATH="$(find build -maxdepth 8 -type d -name App.app | head -n 1)"
           test -n "$APP_PATH"
           cp -R "$APP_PATH" Payload/
-          /usr/bin/ditto -c -k --sequesterRsrc Payload App-unsigned.ipa
+          /usr/bin/ditto -c -k --keepParent --sequesterRsrc Payload App-unsigned.ipa
+
+      - name: Verify Payload structure
+        run: |
+          /usr/bin/unzip -l App-unsigned.ipa | grep -q 'Payload/App.app/' && { echo "OK: Payload/App.app present"; /usr/bin/unzip -l App-unsigned.ipa | sed -n '4p'; } || { echo "FAIL: missing Payload/App.app"; /usr/bin/unzip -l App-unsigned.ipa; exit 1; }
 
       - name: Upload App-unsigned.ipa artifact
         uses: actions/upload-artifact@v4
