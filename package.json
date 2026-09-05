@@ -1,0 +1,14 @@
+{
+  "name": "geo-quiz-globe",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Interactive 3D globe geography quiz game for iOS (Capacitor build, manually signed)",
+  "dependencies": {
+    "@capacitor/core": "^8.5.1",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.5.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.5.1"
+  }
+}

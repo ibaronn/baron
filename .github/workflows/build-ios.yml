@@ -1,0 +1,54 @@
+name: build-ios-unsigned
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build-ipa:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Add iOS platform
+        run: npx cap add ios
+
+      - name: Sync web assets to native project
+        run: npx cap sync ios
+
+      - name: Build unsigned .app (code signing disabled)
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+
+      - name: Package App-unsigned.ipa
+        run: |
+          mkdir -p Payload
+          APP_PATH="$(find build -maxdepth 8 -type d -name App.app | head -n 1)"
+          test -n "$APP_PATH"
+          cp -R "$APP_PATH" Payload/
+          /usr/bin/ditto -c -k --sequesterRsrc Payload App-unsigned.ipa
+
+      - name: Upload App-unsigned.ipa artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: App-unsigned.ipa
+          path: App-unsigned.ipa
+
+      # Signing is intentionally OUT of scope for CI: it is done manually
+      # by the user with their own non-official certificate after download.
